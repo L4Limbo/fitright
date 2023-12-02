@@ -82,7 +82,6 @@ if __name__ == "__main__":
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             
-            #leci = str(get_dist(results, 12, 16))
             leci = str(get_angle(results, 12, 14, 16))
             cv2.putText(image, leci, (150, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255),  4, cv2.LINE_AA)
 
