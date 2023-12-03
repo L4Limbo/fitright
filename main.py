@@ -62,8 +62,10 @@ def get_angle(results, n1, n2, n3):
     return math.degrees(angle)
 
 
-def is_straight(results, n1, n2):
-    pass
+def is_straight(results, n1, n2, n3):
+    if get_angle(results, n1, n2, n3)>160:
+        return True
+    return False
 
 
 if __name__ == "__main__":
@@ -82,8 +84,13 @@ if __name__ == "__main__":
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             
-            leci = str(get_angle(results, 12, 14, 16))
-            cv2.putText(image, leci, (150, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255),  4, cv2.LINE_AA)
+            ist = get_angle(results, 12, 14, 16)
+            leci = is_straight(results, n1, n2, n3)
+            if leci:
+                clr = (0,255,0)
+            else:
+                clr = (0,0,255)
+            cv2.putText(image, str(leci), (150, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, clr,  4, cv2.LINE_AA)
 
             if results.pose_landmarks:
                 draw_skeleton(image, results)
