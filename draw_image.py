@@ -1,6 +1,6 @@
 import cv2
 
-
+#funcs painting over video
 def get_coord(landmark, w, h):
     return (int(landmark.x*w), int(landmark.y*h))
 
