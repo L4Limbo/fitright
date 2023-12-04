@@ -68,6 +68,13 @@ def is_straight(results, n1, n2, n3):
     return False
 
 
+def is_right(results, n1, n2, n3):
+    ang = get_angle(results, n1, n2, n3)
+    if ang>80 and ang<100:
+        return True
+    return False
+
+
 if __name__ == "__main__":
     mp_holistic = mp.solutions.holistic
 
@@ -85,7 +92,8 @@ if __name__ == "__main__":
 
             
             ist = get_angle(results, 12, 14, 16)
-            leci = is_straight(results, n1, n2, n3)
+            leci = is_right(results, 12, 14, 16)
+
             if leci:
                 clr = (0,255,0)
             else:
