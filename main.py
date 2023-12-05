@@ -6,6 +6,7 @@ import math
 from coord_func import *
 from draw_image import draw_skeleton
 
+
 if __name__ == "__main__":
     mp_holistic = mp.solutions.holistic
 
@@ -26,9 +27,9 @@ if __name__ == "__main__":
             leci = is_right(results, 12, 14, 16)
 
             if leci:
-                clr = (0,255,0)
+                clr = (255,255,0)
             else:
-                clr = (0,0,255)
+                clr = (255,0,255)
             cv2.putText(image, str(leci), (150, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, clr,  4, cv2.LINE_AA)
 
             if results.pose_landmarks:
