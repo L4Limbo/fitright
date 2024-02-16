@@ -46,6 +46,7 @@ def main():
         if len(lmList) != 0:
             # points of interest
             head, shoulder, elbow, hip, leg, foot = get_pof(detector, img)
+            
             # pushup percentages
             elbow_per, shoulder_per = get_pushup_percentages(elbow, shoulder)
             
@@ -74,7 +75,12 @@ def main():
                     else:
                         # conditions for each error
                         feedback = "Fix Form"
-
+                        
+        cv2.imshow('Pushup counter', img)
+        
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+        
     cap.release()
     cv2.destroyAllWindows()
     
