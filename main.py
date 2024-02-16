@@ -2,8 +2,9 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import PoseDetector as pm
+import time
 
-currentState = 'pending'
+
 
 def get_pof(detector, img):
     return (
@@ -41,7 +42,7 @@ def downState(shoulder, elbow):
 
 
 def transitState(head, shoulder, elbow, hip, leg, foot):
-    if (elbow < 160 and elbow > 95):
+    if (elbow < 155 and elbow > 95):
         return True
     return False
 
@@ -76,6 +77,25 @@ def currentState(head, shoulder, elbow, hip, leg, foot, lmlist, img):
         return 'pending'
     
     
+def count_pushups(statelist):
+    steps = ['up', 'transit', 'down', 'transit', 'up']
+    pushups = 0
+    i = 0
+    next_step = steps[i]
+    
+    for step in statelist:
+        if next_step in step[0]:
+            i += 1
+            next_step = steps[i]
+            
+        if i == 4:
+            pushups +=1 
+            i = 1
+            next_step = steps[i]
+            
+    return pushups
+    
+    
 def main():
     cap = cv2.VideoCapture(0)
     detector = pm.PoseDetector()
@@ -83,6 +103,11 @@ def main():
     direction = 0
     form = 0
     feedback = "Fix Form"
+    stateTimeLs = []
+    current_state = 'pending'
+    start_time = time.time()
+    session_time = time.time()
+    total_pushups = 0
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -105,8 +130,21 @@ def main():
                 form = 1
 
         
-            currentState = currentState(head, shoulder, elbow, hip, leg, foot, detector.lmList, img)
-            print(currentState)
+            detected_current_state = currentState(head, shoulder, elbow, hip, leg, foot, detector.lmList, img)
+            
+            if (detected_current_state != 'pending'):
+                if detected_current_state != current_state:
+                    if((time.time() - start_time) >= 0.2):
+                        myLs = [current_state,time.time() - start_time]
+                        stateTimeLs.append(myLs)
+                        
+                        current_state = detected_current_state
+                        start_time = time.time()
+                        print(stateTimeLs)
+                        print('--------------------------' + str(total_pushups))                
+            
+            if len(stateTimeLs) >= 5:    
+                total_pushups = count_pushups(stateTimeLs)
             #Check for full range of motion for the pushup
             if form == 1: # up 
                 if elbow_per == 0:
@@ -128,6 +166,11 @@ def main():
                     else:
                         # conditions for each error
                         feedback = "Fix Form"
+            
+            if (total_pushups == 5):
+                print(stateTimeLs)
+                print(total_pushups)
+                break
                         
         cv2.imshow('Pushup counter', img)
         
