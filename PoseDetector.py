@@ -79,3 +79,4 @@ class PoseDetector() :
                         cv2.FONT_HERSHEY_PLAIN, 2, (0,0,255), 2)
             
         return angle
+   

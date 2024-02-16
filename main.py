@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import PoseDetector as pm
 
+currentState = 'pending'
 
 def get_pof(detector, img):
     return (
@@ -22,8 +23,57 @@ def get_pushup_percentages(elbow, shoulder):
     )
     
     
-def right_form(elbow, shoulder, hip, leg, foot):
-    return  elbow > 160 and shoulder > 40 and hip > 160 and leg > 160 and foot < 100
+def right_form(head, shoulder, elbow, hip, leg, foot, lmlist, img):
+    return  (hip > 155 and leg > 150) and abs(lmlist[11][1] - lmlist[27][1]) > 0.1 * img.shape[1]
+
+
+# STATES
+def upState(shoulder, elbow):
+    if (elbow > 160 and shoulder > 40):
+        return True
+    return False
+
+
+def downState(shoulder, elbow):
+    if (elbow < 95 and shoulder < 20):
+        return True
+    return False
+
+
+def transitState(head, shoulder, elbow, hip, leg, foot):
+    if (elbow < 160 and elbow > 95):
+        return True
+    return False
+
+
+
+def wrongForm(head, shoulder, elbow, hip, leg, foot):
+    if hip < 150:
+        return '-hip'
+    if leg < 145:
+        return '-leg'
+    if head < 152:
+        return '-head'        
+    return ''
+
+
+def currentState(head, shoulder, elbow, hip, leg, foot, lmlist, img):
+    if upState(shoulder, elbow):
+        if right_form(head, shoulder, elbow, hip, leg, foot, lmlist, img):
+            return 'up'
+        return 'up'  + wrongForm(head, shoulder, elbow, hip, leg, foot)
+    
+    elif downState(shoulder, elbow):
+        if right_form(head, shoulder, elbow, hip, leg, foot, lmlist, img):
+            return 'down'
+        return 'down' + wrongForm(head, shoulder, elbow, hip, leg, foot)
+    
+    elif transitState(head, shoulder, elbow, hip, leg, foot):
+        if right_form(head, shoulder, elbow, hip, leg, foot, lmlist, img):
+            return 'transit'
+        return 'transit' + wrongForm(head, shoulder, elbow, hip, leg, foot)   
+    else:
+        return 'pending'
     
     
 def main():
@@ -51,9 +101,12 @@ def main():
             elbow_per, shoulder_per = get_pushup_percentages(elbow, shoulder)
             
             #Check to ensure right form before starting the program
-            if right_form(elbow, shoulder, hip, leg, foot):
+            if right_form(head, shoulder, elbow, hip, leg, foot, detector.lmList, img):
                 form = 1
+
         
+            currentState = currentState(head, shoulder, elbow, hip, leg, foot, detector.lmList, img)
+            print(currentState)
             #Check for full range of motion for the pushup
             if form == 1: # up 
                 if elbow_per == 0:
@@ -87,3 +140,7 @@ def main():
     
 if __name__ == "__main__":
     main()
+    
+    
+    
+
