@@ -2,8 +2,7 @@ import cv2
 import mediapipe as mp
 import math
 
-class poseDetector() :
-    
+class PoseDetector() :
     def __init__(self, mode=False, complexity=1, smooth_landmarks=True,
                  enable_segmentation=False, smooth_segmentation=True,
                  detectionCon=0.5, trackCon=0.5):
@@ -34,6 +33,7 @@ class poseDetector() :
                 
         return img
     
+    
     def findPosition(self, img, draw=True):
         self.lmList = []
         if self.results.pose_landmarks:
@@ -46,6 +46,7 @@ class poseDetector() :
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)
         return self.lmList
+    
         
     def findAngle(self, img, p1, p2, p3, draw=True):   
         #Get the landmarks
