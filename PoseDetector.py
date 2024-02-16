@@ -28,9 +28,7 @@ class PoseDetector() :
         
         if self.results.pose_landmarks:
             if draw:
-                self.mpDraw.draw_landmarks(img,self.results.pose_landmarks,
-                                           self.mpPose.POSE_CONNECTIONS)
-                
+                self.mpDraw.draw_landmarks(img,self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS)
         return img
     
     
@@ -63,7 +61,6 @@ class PoseDetector() :
                 angle = 360 - angle
         elif angle > 180:
             angle = 360 - angle
-        # print(angle)
         
         #Draw
         if draw:
@@ -80,22 +77,5 @@ class PoseDetector() :
             
             cv2.putText(img, str(int(angle)), (x2-50, y2+50), 
                         cv2.FONT_HERSHEY_PLAIN, 2, (0,0,255), 2)
-        return angle
-        
-
-def main():
-    detector = poseDetector()
-    cap = cv2.VideoCapture(0)
-    while cap.isOpened():
-        ret, img = cap.read() #ret is just the return variable, not much in there that we will use. 
-        if ret:    
-            img = detector.findPose(img)
-            cv2.imshow('Pose Detection', img)
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
             
-    cap.release()
-    cv2.destroyAllWindows()
-    
-if __name__ == "__main__":
-    main()
+        return angle
