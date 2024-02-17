@@ -76,7 +76,7 @@ def play_sound():
     global to_play 
     while not exit_event.is_set():
         if old_count != common[0]:
-            to_play = r'voice_comm\voice_comm\\' + str(count_files[common[0]])
+            to_play = r'voice_comm\\' + str(count_files[common[0]])
             old_count = common[0]
         time.sleep(1)
 
@@ -156,6 +156,7 @@ def main():
     while cap.isOpened():
         _, img = cap.read() #1280 x 720
         
+     
         img = detector.findPose(img, False)
         lmList = detector.findPosition(img, False)
 
@@ -201,7 +202,7 @@ def main():
                 to_play = 0
                 print('_+++=++++++++')
             # for debugging
-            if (total_pushups == 5):
+            if (total_pushups == 4):
                 print(stateTimeLs)
                 # print(total_pushups)
                 break
@@ -215,6 +216,8 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
     print(total_pushups)
+    exit_event.set()
+    
     
 if __name__ == "__main__":
     thread = threading.Thread(target=play_sound)
