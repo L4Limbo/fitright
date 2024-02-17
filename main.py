@@ -3,6 +3,13 @@ import mediapipe as mp
 import numpy as np
 import PoseDetector as pm
 import time
+import pygame
+import threading
+
+
+common = [0]
+exit_event = threading.Event()
+to_play = 0
 
 
 def get_pof(detector, img):
@@ -54,6 +61,24 @@ def wrongForm(head, shoulder, elbow, hip, leg, foot):
     if head < 152:
         return '-head'        
     return ''
+
+
+def play_wav(file_path):
+    pygame.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+
+
+def play_sound():
+    old_count = 0
+    count_files={1:"one.wav", 2:"two.wav", 3:"three.wav", 4:"four.wav", 5:"five.wav", 6:"six.wav"}
+    global to_play 
+    while not exit_event.is_set():
+        if old_count != common[0]:
+            to_play = r'voice_comm\voice_comm\\' + str(count_files[common[0]])
+            old_count = common[0]
+        time.sleep(1)
 
 
 def currentState(head, shoulder, elbow, hip, leg, foot, lmlist, img):
@@ -114,6 +139,9 @@ def errorHandling(statelist):
     
 
 def main():
+    global to_play
+    pygame.init()
+    pygame.mixer.init() 
     cap = cv2.VideoCapture('test.mp4')
     detector = pm.PoseDetector()
     stateTimeLs = []
@@ -162,11 +190,16 @@ def main():
             if len(stateTimeLs) >= 5:                
                 if count_pushups(stateTimeLs) > 0:
                     total_pushups += 1
+                    common[0] = total_pushups
                     print(total_pushups)
                     stateTimeLs = [stateTimeLs[-1]]
             # ---------------------------------------------------------
             
-            
+            if to_play:
+                print('==========================')
+                play_wav(to_play)
+                to_play = 0
+                print('_+++=++++++++')
             # for debugging
             if (total_pushups == 5):
                 print(stateTimeLs)
@@ -176,6 +209,7 @@ def main():
         cv2.imshow('Pushup counter', img)
         
         if cv2.waitKey(10) & 0xFF == ord('q'):
+            exit_event.set()
             break
         
     cap.release()
@@ -183,8 +217,13 @@ def main():
     print(total_pushups)
     
 if __name__ == "__main__":
+    thread = threading.Thread(target=play_sound)
+    # Start threads
+    thread.start()
+    # Wait for threads to finish
     main()
     
+    thread.join()
     
     
 
