@@ -97,10 +97,6 @@ def count_pushups(statelist):
 def main():
     cap = cv2.VideoCapture('test.mp4')
     detector = pm.PoseDetector()
-    count = 0
-    direction = 0
-    form = 0
-    feedback = "Fix Form"
     stateTimeLs = []
     current_state = 'pending'
     start_time = time.time()
