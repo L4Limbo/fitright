@@ -92,8 +92,27 @@ def count_pushups(statelist):
             next_step = steps[i]
             
     return pushups
+
+
+def errorHandling(statelist):
+    hip_timer = 0
+    leg_timer = 0
+    for state in statelist:
+        if 'hip' in state[0] and state[1] > 0.15:
+            hip_timer += state[1]
+        if 'leg' in state[0] and state[1] > 0.15:
+            leg_timer += state[1]
+        if 'head' in state[0] and state[1] > 0.15:
+            print('head wav')
+            
+    if hip_timer > 0 and hip_timer > leg_timer:
+        print('hip wav')
+        
+    elif leg_timer > 0 and hip_timer < leg_timer:
+        print('hip wav')
     
     
+
 def main():
     cap = cv2.VideoCapture('test.mp4')
     detector = pm.PoseDetector()
@@ -127,7 +146,15 @@ def main():
                         start_time = time.time()
                         print(stateTimeLs)
             # -------------------------------------------------------
+            
+            
 
+            # -------------------------------------------------------
+            # error handling
+            errorHandling(stateTimeLs)
+            # -------------------------------------------------------
+            
+            
 
             # ---------------------------------------------------------
             # count push up if 5 or more states availale
