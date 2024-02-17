@@ -5,7 +5,6 @@ import PoseDetector as pm
 import time
 
 
-
 def get_pof(detector, img):
     return (
         detector.findAngle(img, 7, 11, 23),  # head
@@ -45,7 +44,6 @@ def transitState(head, shoulder, elbow, hip, leg, foot):
     if (elbow < 155 and elbow > 95):
         return True
     return False
-
 
 
 def wrongForm(head, shoulder, elbow, hip, leg, foot):
@@ -97,7 +95,7 @@ def count_pushups(statelist):
     
     
 def main():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture('test.mp4')
     detector = pm.PoseDetector()
     count = 0
     direction = 0
@@ -108,6 +106,7 @@ def main():
     start_time = time.time()
     session_time = time.time()
     total_pushups = 0
+    previous_pushups = 0
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -119,57 +118,38 @@ def main():
         lmList = detector.findPosition(img, False)
 
         if len(lmList) != 0:
-            # points of interest
             head, shoulder, elbow, hip, leg, foot = get_pof(detector, img)
-            
-            # pushup percentages
-            elbow_per, shoulder_per = get_pushup_percentages(elbow, shoulder)
-            
-            #Check to ensure right form before starting the program
-            if right_form(head, shoulder, elbow, hip, leg, foot, detector.lmList, img):
-                form = 1
 
-        
+            # -------------------------------------------------------
+            # state changes
             detected_current_state = currentState(head, shoulder, elbow, hip, leg, foot, detector.lmList, img)
-            
             if (detected_current_state != 'pending'):
                 if detected_current_state != current_state:
-                    if((time.time() - start_time) >= 0.2):
-                        myLs = [current_state,time.time() - start_time]
-                        stateTimeLs.append(myLs)
-                        
+                    if((time.time() - start_time) >= 0.1):
                         current_state = detected_current_state
+                        myLs = [current_state, time.time() - start_time]
+                        stateTimeLs.append(myLs)
                         start_time = time.time()
                         print(stateTimeLs)
-                        print('--------------------------' + str(total_pushups))                
+            # -------------------------------------------------------
+
+
+            # ---------------------------------------------------------
+            # count push up if 5 or more states availale
+            # clean states starting from up (previous last state)
+            if len(stateTimeLs) >= 5: 
+                previous_pushups = total_pushups   
+                total_pushups += count_pushups(stateTimeLs)
+                if previous_pushups < total_pushups:
+                    print(total_pushups)
+                    stateTimeLs = [stateTimeLs[-1]]
+            # ---------------------------------------------------------
             
-            if len(stateTimeLs) >= 5:    
-                total_pushups = count_pushups(stateTimeLs)
-            #Check for full range of motion for the pushup
-            if form == 1: # up 
-                if elbow_per == 0:
-                    if elbow <= 90 and hip > 160:
-                        feedback = "Up"
-                        if direction == 0:
-                            count += 0.5
-                            direction = 1
-                    else:
-                        # conditions for each error
-                        feedback = "Fix Form"
-                        
-                if elbow_per == 100:
-                    if elbow > 160 and shoulder > 40 and hip > 160:
-                        feedback = "Down"
-                        if direction == 1:
-                            count += 0.5
-                            direction = 0
-                    else:
-                        # conditions for each error
-                        feedback = "Fix Form"
             
+            # for debugging
             if (total_pushups == 5):
                 print(stateTimeLs)
-                print(total_pushups)
+                # print(total_pushups)
                 break
                         
         cv2.imshow('Pushup counter', img)
@@ -179,7 +159,7 @@ def main():
         
     cap.release()
     cv2.destroyAllWindows()
-    
+    print(total_pushups)
     
 if __name__ == "__main__":
     main()
