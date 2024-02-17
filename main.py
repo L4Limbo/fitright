@@ -70,6 +70,12 @@ def play_wav(file_path):
         pygame.mixer.music.load(file_path)
         pygame.mixer.music.play()
 
+def play_wav_counter(file_path):
+    if not pygame.mixer.music.get_busy() or True:
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
+
+
 
 def play_sound():
     old_count = 0
@@ -199,7 +205,7 @@ def main():
             
             if to_play:
                 print('==========================')
-                play_wav(to_play)
+                play_wav_counter(to_play)
                 to_play = 0
                 print('_+++=++++++++')
             # for debugging
