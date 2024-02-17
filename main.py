@@ -157,7 +157,7 @@ def main():
     cap = cv2.VideoCapture(0)
     detector = pm.PoseDetector()
     total_pushups = 0
-    goal_pushups = 5
+    goal_pushups = 4
     stateTimeLs = [['pending', 0]]
     current_state = 'pending'
     start_time = time.time()
@@ -206,9 +206,9 @@ def main():
             if im_tired != True:
                 tired = deadHandling(stateTimeLs)
                 if tired and total_pushups >= 1:
-                    print("------------tired")
-                    play_wav_not_busy(r'voice_comm\\' + 'tired.wav')
-                    goal_pushups -= 2
+                    play_wav_not_busy(r'voice_comm\\' + 'tired.wav') 
+                    total_pushups = 0
+                    goal_pushups = 2
                     im_tired = True
             
             total_pushups = standingHandling(stateTimeLs, total_pushups)
@@ -217,10 +217,10 @@ def main():
             if total_pushups >= goal_pushups:
                 print("Congrats: " + str(total_pushups))
                 play_wav_not_busy(r'voice_comm\\' + count_files[total_pushups])
-                time.sleep(1)
+                time.sleep(1)  
                 play_wav_not_busy(r'voice_comm\\' + 'congrats.wav')
-                while pygame.mixer.music.get_busy():  # Wait for the audio to finish
-                    time.sleep(0.1)  # Check every 0.1 seconds
+                while pygame.mixer.music.get_busy(): 
+                    time.sleep(0.1)
                 break
         
         
