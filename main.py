@@ -10,6 +10,8 @@ import threading
 common = [0]
 exit_event = threading.Event()
 to_play = 0
+pygame.init()
+pygame.mixer.init()
 
 
 def get_pof(detector, img):
@@ -58,16 +60,15 @@ def wrongForm(head, shoulder, elbow, hip, leg, foot):
         return '-hip'
     if leg < 145:
         return '-leg'
-    if head < 152:
-        return '-head'        
+    # if head < 152:
+    #     return '-head'        
     return ''
 
 
 def play_wav(file_path):
-    pygame.init()
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_path)
-    pygame.mixer.music.play()
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
 
 
 def play_sound():
@@ -128,13 +129,13 @@ def errorHandling(statelist):
         if 'leg' in state[0] and state[1] > 0.15:
             leg_timer += state[1]
         if 'head' in state[0] and state[1] > 0.15:
-            print('head wav')
+            pass
             
     if hip_timer > 0 and hip_timer > leg_timer:
-        print('hip wav')
+        play_wav(r'voice_comm\\' + 'fix_back.wav')
         
     elif leg_timer > 0 and hip_timer < leg_timer:
-        print('hip wav')
+        play_wav(r'voice_comm\\' + 'fix_knees.wav')
     
     
 
@@ -142,7 +143,7 @@ def main():
     global to_play
     pygame.init()
     pygame.mixer.init() 
-    cap = cv2.VideoCapture('test.mp4')
+    cap = cv2.VideoCapture('test_2.mp4')
     detector = pm.PoseDetector()
     stateTimeLs = []
     current_state = 'pending'
@@ -168,7 +169,7 @@ def main():
             detected_current_state = currentState(head, shoulder, elbow, hip, leg, foot, detector.lmList, img)
             if (detected_current_state != 'pending'):
                 if detected_current_state != current_state:
-                    if((time.time() - start_time) >= 0.1):
+                    if((time.time() - start_time) >= 0.05):
                         current_state = detected_current_state
                         myLs = [current_state, time.time() - start_time]
                         stateTimeLs.append(myLs)
