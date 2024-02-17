@@ -102,7 +102,6 @@ def main():
     start_time = time.time()
     session_time = time.time()
     total_pushups = 0
-    previous_pushups = 0
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -133,10 +132,9 @@ def main():
             # ---------------------------------------------------------
             # count push up if 5 or more states availale
             # clean states starting from up (previous last state)
-            if len(stateTimeLs) >= 5: 
-                previous_pushups = total_pushups   
-                total_pushups += count_pushups(stateTimeLs)
-                if previous_pushups < total_pushups:
+            if len(stateTimeLs) >= 5:                
+                if count_pushups(stateTimeLs) > 0:
+                    total_pushups += 1
                     print(total_pushups)
                     stateTimeLs = [stateTimeLs[-1]]
             # ---------------------------------------------------------
