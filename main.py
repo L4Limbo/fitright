@@ -154,7 +154,7 @@ def standingHandling(statelist, totalPushups):
 
 def main():
     # cap = cv2.VideoCapture('test_2.mp4')
-    cap = cv2.VideoCapture('slow_video.mp4')
+    cap = cv2.VideoCapture(0)
     detector = pm.PoseDetector()
     total_pushups = 0
     goal_pushups = 5
@@ -205,7 +205,8 @@ def main():
             
             if im_tired != True:
                 tired = deadHandling(stateTimeLs)
-                if tired:
+                if tired and total_pushups >= 1:
+                    print("------------tired")
                     play_wav_not_busy(r'voice_comm\\' + 'tired.wav')
                     goal_pushups -= 2
                     im_tired = True
